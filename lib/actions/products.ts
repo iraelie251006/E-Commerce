@@ -8,10 +8,23 @@ export const createProduct = async(product:IProduct) => {
     try {
         const newProduct = await Product.create(product)
 
-        const productId: string = newProduct._id.toString();
-        return productId;
+        return newProduct._id.toString();
     } catch (error) {
         console.log("Error Creating New Product: ", error);
         throw new Error("Error Creating New Product");
+    }
+}
+
+export const getProductById = async(productId:string) => {
+    await dbConnect();
+    try {
+        const product = await Product.findById(productId);
+        if (!product) {
+            return null;
+        }
+        return product;
+    } catch (error) {
+        console.log("Error Creating GetProductById: ", error);
+        return null;
     }
 }
