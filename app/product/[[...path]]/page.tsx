@@ -15,15 +15,16 @@ export default async function Page({ params }: { params: { path: string[] } }) {
   if (method === "new") {
     return <AddProduct />;
   }
+
+  const product = await getProductById(id);
+  const { reviews, averageRating }: any = await getReviewsAndRating(id);
+
   if (method === "edit") {
-    return <AddProduct edit id={id} />;
+    return <AddProduct edit id={id} product={product} />;
   }
   if (method === "delete") {
     return <DeleteProduct id={id} />;
   }
-
-  const product = await getProductById(id);
-  const { reviews, averageRating }: any = await getReviewsAndRating(id);
 
   if (!product) {
     return <div className="h-screen flex justify-center items-center text-2xl">No Product found 😔</div>

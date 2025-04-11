@@ -28,3 +28,16 @@ export const getProductById = async(productId:string) => {
         return null;
     }
 }
+
+export const updateProduct = async(productId:string, data: Partial<IProduct>) => {
+    await dbConnect();
+
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(productId, data, {new: true})
+
+        return updatedProduct._id.toString();
+    } catch (e) {
+        console.log("Error Creating UpdateProduct: ", e);
+        return null;
+    }
+}
