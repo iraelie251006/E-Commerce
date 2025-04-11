@@ -17,8 +17,9 @@ export async function getReviewsAndRating (productId: string) {
         ])
 
         const averageRating = averageRatingResult[0]?.average || 0;
-        return {averageRating, reviews};
+        return {reviews, averageRating};
     } catch (e) {
         console.error("Retrieving reviews: ", e);
+        return {reviews: [], averageRating: 0};
     }
 }

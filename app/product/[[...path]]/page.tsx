@@ -17,7 +17,7 @@ export default async function Page({ params }: { params: { path: string[] } }) {
   }
 
   const product = await getProductById(id);
-  const { reviews, averageRating }: any = await getReviewsAndRating(id);
+  const { reviews, averageRating } = await getReviewsAndRating(id);
 
   if (method === "edit") {
     return <AddProduct edit id={id} product={product} />;
@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: { path: string[] } }) {
   }
 
   if (!product) {
-    return <div className="h-screen flex justify-center items-center text-2xl">No Product found 😔</div>
+    return <div className="h-screen flex justify-center items-center text-3xl">No Product found 😔</div>
   }
 
   return (

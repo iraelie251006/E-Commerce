@@ -2,6 +2,7 @@
 
 import dbConnect from "@/lib/db";
 import Product, {IProduct} from "@/lib/models/product";
+import {revalidateTag, unstable_cache as cache} from "next/cache";
 
 export const createProduct = async(product:IProduct) => {
     await dbConnect();
@@ -15,7 +16,7 @@ export const createProduct = async(product:IProduct) => {
     }
 }
 
-export const getProductById = async(productId:string) => {
+const _getProductById = async(productId:string) => {
     await dbConnect();
     try {
         const product = await Product.findById(productId);
@@ -29,15 +30,32 @@ export const getProductById = async(productId:string) => {
     }
 }
 
+export const getProductById = cache(_getProductById, ["getProductById"], {tags: ["Product"]} )
+
 export const updateProduct = async(productId:string, data: Partial<IProduct>) => {
     await dbConnect();
 
     try {
         const updatedProduct = await Product.findByIdAndUpdate(productId, data, {new: true})
 
+        revalidateTag("Product");
         return updatedProduct._id.toString();
     } catch (e) {
         console.log("Error Creating UpdateProduct: ", e);
         return null;
+    }
+}
+
+export const deleteProduct = async(productId:string) => {
+    await dbConnect();
+
+    try {
+        const deletedProduct = await Product.findByIdAndDelete(productId);
+
+        revalidateTag("Product");
+        return deletedProduct.deletedCount === 1;
+    } catch (e) {
+        console.log("Error Deleting Product: ", e);
+        return false;
     }
 }
