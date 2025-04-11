@@ -2,7 +2,7 @@
 
 import ImageSelect from "./ImageSelect";
 
-import { useState } from "react";
+import {FormEvent, useState} from "react";
 import { PlusIcon } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {createProduct} from "@/lib/actions/products";
+import {useRouter} from "next/navigation";
 
 export const revalidate = 1;
 
@@ -26,6 +28,7 @@ export default function AddProduct({
   edit?: boolean;
   id?: string;
 }) {
+  const router = useRouter();
   const title = edit ? "Edit Product " + id : "Add Product";
   const subText = edit
     ? "Update the details of your product here."
@@ -37,9 +40,16 @@ export default function AddProduct({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("electronics");
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async(e: FormEvent) => {
     e.preventDefault();
-    console.log({ name, category, images, description, price });
+    try {
+      const newProductId = await createProduct({ name, category, images, description, price })
+
+      router.push(`/products/view/${newProductId}`);
+    } catch (error) {
+      console.log("Error creating new product: ", error);
+    }
+
   };
 
   return (
@@ -47,7 +57,7 @@ export default function AddProduct({
       <form onSubmit={handleSubmit}>
         <div className="grid gap-4">
           <h1 className="text-3xl font-bold">{title}</h1>
-          <p className="text-gray-500 dark:text-gray-400">{subText}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-3">{subText}</p>
         </div>
         <div className="grid gap-6">
           <div className="grid md:grid-cols-2 gap-6">
@@ -102,7 +112,7 @@ export default function AddProduct({
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
-          <Button>Save Changes</Button>
+          <Button type="submit">Save Changes</Button>
         </div>
       </form>
     </div>
