@@ -1,10 +1,10 @@
 "use server";
 
 import dbConnect from "@/lib/db";
-import Review from "@/lib/models/review";
+import Review, {IReview} from "@/lib/models/review";
 import mongoose from "mongoose";
-
-export async function getReviewsAndRating (productId: string) {
+import {revalidateTag, unstable_cache as cache} from "next/cache";
+async function _getReviewsAndRating (productId: string) {
     await dbConnect()
     try {
         const reviews = await Review.find({productId});
@@ -21,5 +21,20 @@ export async function getReviewsAndRating (productId: string) {
     } catch (e) {
         console.error("Retrieving reviews: ", e);
         return {reviews: [], averageRating: 0};
+    }
+}
+
+export const getReviewsAndRating = cache(_getReviewsAndRating, ["getReviewsAndRating"], {tags: ["getReviewsAndRating"]})
+
+export async function createReview (review: IReview) {
+    await dbConnect();
+
+    try {
+        const newReview = await Review.create(review);
+        revalidateTag("getReviewsAndRating");
+        return newReview._id.toString();
+    } catch (error) {
+        console.error(error);
+        return null;
     }
 }

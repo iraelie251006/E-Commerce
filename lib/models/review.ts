@@ -7,7 +7,7 @@ export interface IReview {
     },
     rating: number,
     content: string,
-    productId: Types.ObjectId,
+    productId: Types.ObjectId | string,
 }
 
 const AuthorSchema = new Schema({

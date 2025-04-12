@@ -42,7 +42,7 @@ export default async function Page({ params }: { params: { path: string[] } }) {
         </div>
       </div>
       <div className="md:col-span-2">
-        <AddReview />
+        <AddReview id={id}/>
       </div>
     </div>
   );
