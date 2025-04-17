@@ -59,3 +59,52 @@ export const deleteProduct = async(productId:string) => {
         return false;
     }
 }
+
+export const getProducts = async(page: number, search: string, minPrice: number, category: string) => {
+    await dbConnect();
+
+    const limit = 5;
+    const skip = (page - 1) * limit;
+    try {
+        const pipeline = [
+            {
+                $lookup: {
+                    from: 'Review',
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'reviews',
+                },
+            },
+            {
+                $project: {
+                    name: 1,
+                    images: {$first: '$images'},
+                    averageRating: {
+                        $avg: '$Review.rating',
+                    },
+                },
+            },
+                {
+                    $skip: skip
+                },
+            {
+                $limit: limit
+            },
+            {
+                $match: {
+                    name: {
+                        $regex: search,
+                        $options: 'i'
+                    },
+                    price: {
+                        $gte: minPrice,
+                    },
+                    ...(category && { category: category }),
+                }
+            }
+        ]
+        return await Product.aggregate(pipeline);
+    } catch (e) {
+        console.log(e);
+    }
+}
