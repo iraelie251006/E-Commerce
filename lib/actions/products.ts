@@ -69,9 +69,9 @@ export const getProducts = async(page: number, search: string, minPrice: number,
         const pipeline = [
             {
                 $lookup: {
-                    from: 'Review',
+                    from: 'reviews',
                     localField: '_id',
-                    foreignField: 'product',
+                    foreignField: 'productId',
                     as: 'reviews',
                 },
             },
@@ -80,31 +80,23 @@ export const getProducts = async(page: number, search: string, minPrice: number,
                     name: 1,
                     images: {$first: '$images'},
                     averageRating: {
-                        $avg: '$Review.rating',
+                        $avg: '$reviews.rating',
                     },
                 },
             },
+
                 {
                     $skip: skip
                 },
             {
                 $limit: limit
             },
-            {
-                $match: {
-                    name: {
-                        $regex: search,
-                        $options: 'i'
-                    },
-                    price: {
-                        $gte: minPrice,
-                    },
-                    ...(category && { category: category }),
-                }
-            }
-        ]
-        return await Product.aggregate(pipeline);
+        ];
+        const products = await Product.aggregate(pipeline);
+        console.log(products);
+        return products;
     } catch (e) {
         console.log(e);
+        return [];
     }
 }
